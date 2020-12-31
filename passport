@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Dec  5 19:42:29 2020
+
+@author: hjchung
+"""
+
+import os
+#import re
+#import numpy as np
+#import pandas as pd
+#import operator
+#from operator import xor
+
+        
+
+inputFilename = os.path.join('passportdata')
+
+inputFile = open(inputFilename, 'r')
+inputLines = inputFile.read()
+
+inputLines = inputLines.replace(' ', ',')
+inputLines = inputLines.replace('\n\n', '\t\t')
+inputLines = inputLines.replace('\n', ',')
+inputLines = inputLines.replace('\t\t', '\n')
+inputLines = inputLines[:-2]
+inputLines = inputLines.split('\n')
+
+counter = 0
+debug = 0
+
+for line in inputLines:
+    pdict = dict(e.split(':') for e in line.split(','))
+    pkeys = pdict.keys()
+    
+    if len(pkeys) == 8:
+        counter += 1
+    elif len(pkeys) == 7 and 'cid' not in pkeys:
+        counter +=1
+    debug += 1
+
+print(counter)
+
+
+    
+
+    
+# open file and create dictionary from next line
+# create dictionary from string
+
+
+

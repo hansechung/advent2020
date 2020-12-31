@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Dec  5 19:42:29 2020
+
+@author: hjchung
+"""
+
+import os
+import re
+#import numpy as np
+#import pandas as pd
+
+inputFilename = os.path.join('passportdata')
+
+inputFile = open(inputFilename, 'r')
+inputLines = inputFile.read()
+
+inputLines = inputLines.replace(' ', ',')
+inputLines = inputLines.replace('\n\n', '\t\t')
+inputLines = inputLines.replace('\n', ',')
+inputLines = inputLines.replace('\t\t', '\n')
+inputLines = inputLines[:-1]
+inputLines = inputLines.split('\n')
+
+counter = 0 
+eyecolor = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
+
+for line in inputLines:
+    pdict = dict(e.split(':') for e in line.split(','))
+    pkeys = pdict.keys()
+    
+    allflag = 0
+    byrflag = 0
+    iyrflag = 0
+    eyrflag = 0
+    hgtflag = 0
+    hclflag = 0
+    eclflag = 0
+    pidflag = 0
+        
+    if len(pkeys) == 8 or (len(pkeys) == 7 and 'cid' not in pkeys):
+        
+        byr = int(pdict['byr'])
+        iyr = int(pdict['iyr'])
+        eyr = int(pdict['eyr'])
+        hgt = pdict['hgt']
+        hgtunit = hgt[-2:]
+        hgtnum = int(hgt[:-2])
+        hcl = pdict['hcl']
+        ecl = pdict['ecl']
+        pid = pdict['pid']
+        
+        allflag = 1
+        
+        if (byr >= 1920 and byr <= 2002):
+            byrflag = 1
+        if (iyr >= 2010 and iyr <= 2020):
+            iyrflag = 1
+        if (eyr >= 2020 and eyr <= 2030):
+            eyrflag = 1
+        
+        if hgtunit == 'cm' and (hgtnum >= 150 and hgtnum <= 193):
+            hgtflag = 1
+        
+        if hgtunit == 'in' and (hgtnum >= 59 and hgtnum <= 76):
+            hgtflag = 1
+        
+        if re.search(r'[#?][0-9a-f]{6}\b', hcl):
+            hclflag = 1    
+        if ecl in eyecolor:
+            eclflag = 1
+        if re.search(r'\b\d{9}\b', pid):
+            pidflag = 1
+        
+        flag = allflag * byrflag * iyrflag * eyrflag * hgtflag * hclflag * eclflag * pidflag
+        
+    counter += flag
+    
+    if flag == 1:
+        print(byr, iyr, eyr, hgt, hgtnum, hcl, ecl, pid)
+
+print(counter)
+

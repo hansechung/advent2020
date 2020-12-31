@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Dec  5 19:42:29 2020
+
+@author: hjchung
+"""
+
+import os
+import re
+#import numpy as np
+#import pandas as pd
+
+inputFilename = os.path.join('passportdata')
+
+inputFile = open(inputFilename, 'r')
+inputLines = inputFile.read()
+
+inputLines = inputLines.replace(' ', ',')
+inputLines = inputLines.replace('\n\n', '\t\t')
+inputLines = inputLines.replace('\n', ',')
+inputLines = inputLines.replace('\t\t', '\n')
+inputLines = inputLines[:-1]
+inputLines = inputLines.split('\n')
+
+counter = [] 
+eyecolor = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
+
+def check_byr(inputstring):
+    byr = int(inputstring)
+    if len(inputstring) == 4 and byr >= 1920 and byr <= 2002:
+        return 1
+    else:
+        return 0
+    
+def check_iyr(inputstring):
+    iyr = int(inputstring)
+    if len(inputstring) == 4 and iyr >= 2010 and iyr <= 2020:
+        return 1
+    else:
+        return 0    
+
+def check_eyr(inputstring):
+    eyr = int(inputstring)
+    if len(inputstring) == 4 and eyr >= 2020 and eyr <= 2030:
+        return 1
+    else:
+        return 0    
+
+def check_hgt(inputstring):
+    hgtunit = inputstring[-2:]
+    hgtnum = int(inputstring[:-2])
+    if hgtunit == 'cm' and hgtnum >= 150 and hgtnum <= 193:
+        return 1
+    elif hgtunit == 'in' and hgtnum >= 59 and hgtnum <= 76:
+        return 1
+    else:
+        return 0
+
+def check_hcl(inputstring):
+    
+    if re.search(r'[#?][0-9a-f]{6}\b', inputstring):
+        return 1
+    else:
+        return 0
+    
+def check_ecl(inputstring):
+    
+    eyecolor = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
+    if inputstring in eyecolor:
+        return 1
+    else:
+        return 0
+    
+def check_pid(inputstring):
+    
+    if re.search(r'\b\d{9}\b', inputstring):
+        return 1
+    else:
+        return 0
+    
+        
+for line in inputLines:
+    pdict = dict(e.split(':') for e in line.split(','))
+    pkeys = pdict.keys()
+    
+    flag = 0    
+    
+    if len(pkeys) == 8 or (len(pkeys) == 7 and 'cid' not in pkeys):
+        
+        byr = pdict['byr']
+        iyr = pdict['iyr']
+        eyr = pdict['eyr']
+        hgt = pdict['hgt']
+        hcl = pdict['hcl']
+        ecl = pdict['ecl']
+        pid = pdict['pid']
+        
+        flag = check_byr(byr) * check_iyr(iyr) * check_eyr(eyr) * check_hgt(hgt) * check_hcl(hcl) * check_ecl(ecl) * check_pid(pid)
+        
+    counter.append(flag)
+
+print(sum(counter))
+
+
